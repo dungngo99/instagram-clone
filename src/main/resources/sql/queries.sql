@@ -1,1 +1,3 @@
-select * from instagram.users;
+use instagram;
+select * from users;
+select * from jwt;

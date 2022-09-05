@@ -1,7 +1,6 @@
 package com.example.instagram.controller;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,15 +18,18 @@ import com.example.instagram.model.ErrorResponse;
 import com.example.instagram.model.Greeting;
 import com.example.instagram.model.JwtResponse;
 import com.example.instagram.model.User;
+import com.example.instagram.service.JwtTokenService;
 import com.example.instagram.service.UserService;
 
 @RestController
 public class GreetingController {
     private static final AtomicLong COUNTER = new AtomicLong();
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
@@ -50,14 +53,31 @@ public class GreetingController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody User user) throws Exception {
-        String jwt = userService.login(user);
-        if (jwt == null) {
-            return new ResponseEntity<JwtResponse>(new JwtResponse("", LocalDateTime.now().format(FORMATTER)),
+    public ResponseEntity<JwtResponse> login(
+            @RequestHeader(name = "Authorization", required = false) String token,
+            @RequestBody User user) throws Exception {
+
+        if (token != null) {
+            JwtResponse jwtResponse = jwtTokenService.findByJwt(token);
+            if (jwtResponse != null)
+                return new ResponseEntity<JwtResponse>(jwtResponse, HttpStatus.ACCEPTED);
+        }
+
+        JwtResponse jwtResponse = userService.login(user);
+
+        if (jwtResponse == null) {
+            return new ResponseEntity<JwtResponse>(
+                    new JwtResponse("", LocalDateTime.now()),
                     HttpStatus.NOT_FOUND);
         }
-        
-        return new ResponseEntity<JwtResponse>(
-                new JwtResponse(jwt, LocalDateTime.now().format(FORMATTER)), HttpStatus.ACCEPTED);
+
+        return new ResponseEntity<JwtResponse>(jwtResponse, HttpStatus.ACCEPTED);
     }
+
+    @PostMapping("/logout")
+    public String logout(@RequestBody JwtResponse jwtResponse) {
+        userService.logout(jwtResponse);
+        return "sucessfully logged out";
+    }
+
 }

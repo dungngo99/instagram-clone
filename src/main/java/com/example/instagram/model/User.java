@@ -32,6 +32,9 @@ public class User implements Serializable {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "new_password")
+    private String newPassword;
+
     @Column(name = "first_name")
     private String firstName;
 
@@ -144,11 +147,11 @@ public class User implements Serializable {
         this.uuid = token;
     }
 
-    @Override
-    public String toString() {
-        return "User [birthDate=" + birthDate + ", createdAt=" + createdAt + ", firstName=" + firstName + ", lastName="
-                + lastName + ", loginAt=" + loginAt + ", logoutAt=" + logoutAt + ", password=" + password + ", userID="
-                + userID + ", userName=" + userName + ", uuid=" + uuid + "]";
+    public String getNewPassword() {
+        return newPassword;
     }
 
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
 }

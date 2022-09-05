@@ -20,7 +20,7 @@ public class CloneApplication {
 			System.out.println("Let's inspect the beans provided by Spring boot");
 			String[] beanNames = ctx.getBeanDefinitionNames();
 			Arrays.sort(beanNames);
-			Arrays.stream(beanNames).forEach(System.out::println);
+			// Arrays.stream(beanNames).forEach(System.out::println);
 		};
 	}
 }

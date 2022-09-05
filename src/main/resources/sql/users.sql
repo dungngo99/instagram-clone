@@ -6,6 +6,7 @@ create table if not exists `users`(
 	`user_id` int(11) primary key AUTO_INCREMENT,
     `user_name` varchar(45),
     `password` varchar(45),
+    `new_password` varchar(45),
     `first_name` varchar(45) default null,
     `last_name` varchar(45) default null,
     `date_of_birth` date default null,
